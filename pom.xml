@@ -1,42 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.mycompany.wfmanager</groupId>
-    <artifactId>WFManager</artifactId>
+    <groupId>com.mycompany</groupId>
+    <artifactId>mulvbot</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <dependencies>
-        <dependency>
-            <groupId>net.dv8tion</groupId>
-            <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20220320</version>
-        </dependency>
-    </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <exec.mainClass>com.mycompany.wfmanager.main</exec.mainClass>
+        <exec.mainClass>com.mycompany.mulvbot.Mulvbot</exec.mainClass>
     </properties>
     
-    <build>
+     <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.3.0</version>
-<<<<<<< HEAD
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
           <release>11</release>
         </configuration>
-=======
->>>>>>> main
         <executions>
           <execution>
             <phase>package</phase>
@@ -46,7 +31,7 @@
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.mycompany.wfmanager.main</mainClass>
+                  <mainClass>com.mycompany.mulvbot.Mulvbot</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -55,4 +40,16 @@
       </plugin>
     </plugins>
   </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20220320</version>
+        </dependency>
+        <dependency>
+            <groupId>net.dv8tion</groupId>
+            <artifactId>JDA</artifactId>
+            <version>5.0.0-alpha.12</version>
+        </dependency>
+    </dependencies>
 </project>

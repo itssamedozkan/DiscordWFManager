@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.mycompany.wfmanager</groupId>
-  <artifactId>WFManager</artifactId>
+  <groupId>com.mycompany</groupId>
+  <artifactId>mulvbot</artifactId>
   <version>1.0-SNAPSHOT</version>
   <build>
     <plugins>
@@ -18,18 +18,23 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.mycompany.wfmanager.main</mainClass>
+                  <mainClass>com.mycompany.mulvbot.Mulvbot</mainClass>
                 </transformer>
               </transformers>
             </configuration>
           </execution>
         </executions>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <release>11</release>
+        </configuration>
       </plugin>
     </plugins>
   </build>
   <properties>
     <maven.compiler.target>11</maven.compiler.target>
-    <exec.mainClass>com.mycompany.wfmanager.main</exec.mainClass>
+    <exec.mainClass>com.mycompany.mulvbot.Mulvbot</exec.mainClass>
     <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
