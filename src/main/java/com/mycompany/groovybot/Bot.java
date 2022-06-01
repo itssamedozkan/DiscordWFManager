@@ -58,13 +58,13 @@ public class Bot extends ListenerAdapter {
                 BufferedReader reader;
                 try {
                     reader = new BufferedReader(new FileReader("MastersList.txt"));
-                    String line = reader.readLine().stripTrailing();
+                    String line = reader.readLine().trim();
                     while (line != null) {
                         // read next line
                         System.out.println(line);
                         try {
                             String[] splited = line.split("\t");
-                             Masters.put(splited[0].strip(), splited[1].strip());
+                             Masters.put(splited[0].trim(), splited[1].trim());
                             System.out.println("splitted done");
                         } catch (Exception e) {
                             System.out.println("split error");
@@ -120,16 +120,16 @@ public class Bot extends ListenerAdapter {
             try {
                 String command = msg.getContentRaw().replace("!newMaster ", "");
                 String[] split = command.split(" ");
-                Masters.put(split[0].strip(), split[1].strip());
+                Masters.put(split[0].trim(), split[1].trim());
                 file = new FileWriter("MastersList.txt");
                 // Creates a BufferedWriter
                 BufferedWriter output = new BufferedWriter(file);
                 // Writes the string to the file
-                output.write(split[0].strip()  + "\t" + split[1].strip() + "\n");
+                output.write(split[0].trim()  + "\t" + split[1].trim() + "\n");
                 // Closes the writer
                 output.close();
                 
-                msg.reply("\""+ split[0].strip() +" is my new Master from now on !\"").queue();
+                msg.reply("\""+ split[0].trim() +" is my new Master from now on !\"").queue();
             } catch (IOException ex) {
                 Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
@@ -143,10 +143,10 @@ public class Bot extends ListenerAdapter {
             String command = msg.getContentRaw().replace("!taskinfo ", "");
             
             try {
-                JSONObject mastersdata = getMastersTasks(command.strip());
+                JSONObject mastersdata = getMastersTasks(command.trim());
                 JSONArray masterstasks = mastersdata.getJSONArray("tasks");
                 msg.reply("\"Pease wait while i am preparing your results!\"").queue(response /* => Message */ -> {
-                response.editMessageFormat(" Master "+ command.strip() +" has "+ masterstasks.length() +" accessible tasks created in total !").queue();
+                response.editMessageFormat(" Master "+ command.trim() +" has "+ masterstasks.length() +" accessible tasks created in total !").queue();
             });
             } catch (IOException ex) {
                 Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
@@ -155,8 +155,8 @@ public class Bot extends ListenerAdapter {
 
             String command = msg.getContentRaw().replace("!slaveinfo ", "");
             String[] splitted = command.split(" ");
-            String Master = splitted[0].strip();
-            String Slave = splitted[1].strip();
+            String Master = splitted[0].trim();
+            String Slave = splitted[1].trim();
             msg.reply("\"Master,  please wait while i am preparing your results!\"").queue(response /* => Message */ -> {
                 response.editMessageFormat(getUserInfo(Master,Slave)).queue();
             });
