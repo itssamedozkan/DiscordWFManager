@@ -69,7 +69,7 @@ public class Bot extends ListenerAdapter {
                         } catch (Exception e) {
                             System.out.println("split error");
                         }
-                        line = reader.readLine().stripTrailing();
+                        line = reader.readLine().trim();
 
                     }
                     reader.close();
