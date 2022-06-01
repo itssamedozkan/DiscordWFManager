@@ -4,12 +4,9 @@
  */
 package com.mycompany.groovybot;
 
-import java.util.Collections;
 import javax.security.auth.login.LoginException;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -29,17 +26,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.dv8tion.jda.api.entities.Channel;
 
 /**
  *
