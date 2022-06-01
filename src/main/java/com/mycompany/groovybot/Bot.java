@@ -4,7 +4,6 @@
  */
 package com.mycompany.groovybot;
 
-import static com.mycompany.groovybot.GroovyBot.getResponse;
 import java.util.Collections;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDA;
@@ -378,5 +377,15 @@ public class Bot extends ListenerAdapter {
         }
         return null;
 }
-    
+        public static String getResponse(InputStream i) throws IOException {
+        String res = "";
+        InputStreamReader in = new InputStreamReader(i);
+        BufferedReader br = new BufferedReader(in);
+        String output;
+        while ((output = br.readLine()) != null) {
+            res += (output);
+        }
+
+        return res;
+    }
 }
