@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
@@ -39,6 +40,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import net.dv8tion.jda.api.entities.Channel;
 
 /**
  *
@@ -94,13 +96,14 @@ public class Bot extends ListenerAdapter {
         // All other events will be disabled.
         JDABuilder.createLight("OTgxMjYzNzc2NTU0ODExNDAy.Gq9DBo.H42YC8rRw_DlmumDfdk5tqVUWfmpPfQIz3wVOM", GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES)
                 .addEventListeners(new Bot())
-                .setActivity(Activity.playing("Type !ping"))
+                .setActivity(Activity.playing("Serving Master Mulv"))
                 .build();
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Message msg = event.getMessage();
+        MessageChannel  chl = event.getChannel();
         event.getAuthor();
         StringBuilder MastersBuilder = new StringBuilder();
 
@@ -144,17 +147,67 @@ public class Bot extends ListenerAdapter {
                     Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-        }else if (msg.getContentRaw().contains("!info")){
-            String command = msg.getContentRaw().replace("!info ", "");
-
-            getUserInfo(command.strip());
-        } else if (msg.getContentRaw().contains("!ping")) {
-            msg.reply("\"Master,  please wait while i am preparing your results!\"").queue(response /* => Message */ -> {
-                response.editMessageFormat("Thank you for waiting").queue();
+        }else if (msg.getContentRaw().contains("!taskinfo")){
+            String command = msg.getContentRaw().replace("!taskinfo ", "");
+            
+            try {
+                JSONObject mastersdata = getMastersTasks(command.strip());
+                JSONArray masterstasks = mastersdata.getJSONArray("tasks");
+                msg.reply("\"Pease wait while i am preparing your results!\"").queue(response /* => Message */ -> {
+                response.editMessageFormat(" Master "+ command.strip() +" has "+ masterstasks.length() +" accessible tasks created in total !").queue();
             });
+            } catch (IOException ex) {
+                Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }else if (msg.getContentRaw().contains("!slaveinfo")){
 
+            String command = msg.getContentRaw().replace("!slaveinfo ", "");
+            String[] splitted = command.split(" ");
+            String Master = splitted[0].strip();
+            String Slave = splitted[1].strip();
+            msg.reply("\"Master,  please wait while i am preparing your results!\"").queue(response /* => Message */ -> {
+                response.editMessageFormat(getUserInfo(Master,Slave)).queue();
+            });
+            
         }
     }
+    
+    private static String getUserInfo(String MasterName , String SlaveName){
+         long ttwasted = 0 ;
+        try {
+            JSONObject masterdata = getMastersTasks(MasterName);
+            JSONArray masterstasks = masterdata.getJSONArray("tasks");
+            for (int i = 0; i < masterstasks.length(); i++) {
+                JSONObject task = (JSONObject) masterstasks.get(i);
+                String taskid = (String) task.get("_id");
+                JSONArray taskdetails = (JSONArray) (getTaskDetails(taskid).getJSONArray("solutions")) ;
+                System.out.println("Task name :" + (String) task.get("name"));
+                for (int j = 0; j < taskdetails.length(); j++) {
+                    System.out.println((JSONObject)taskdetails.get(j));
+                    try {
+                        
+                 
+                    String Realuser_id =  ((JSONObject)((JSONObject)taskdetails.get(j)).get("realUser")).getString("_id");
+                    String realuser_name = ((JSONObject)((JSONObject)taskdetails.get(j)).get("realUser")).getString("name");
+                    int totaltime = ((JSONObject)taskdetails.get(j)).getInt("totalTime");
+                    System.out.println(Realuser_id  + " _ " + totaltime);
+                    if (Realuser_id.equals(SlaveName) || realuser_name.equals(SlaveName)){
+                        ttwasted += totaltime;
+                    }
+                       } catch (Exception e) {
+                    }
+                    
+                }
+            }
+            int seconds = (int) (ttwasted / 1000) % 60 ;
+            int minutes = (int) ((ttwasted / (1000*60)) % 60);
+            int hours   = (int) ((ttwasted / (1000*60*60)) % 24);
+            return "Slave : " + SlaveName + " has wasted a total time of " + hours + " hours "+ minutes+" minutes " +seconds+" seconds for you Master " +MasterName;
+        } catch (IOException ex) {
+            Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "";
+}
 
     private void getUserInfo(String Master){
         
@@ -187,13 +240,54 @@ public class Bot extends ListenerAdapter {
             System.out.println(http.getResponseCode() + " " + http.getResponseMessage());
 
             String response = getResponse(http.getInputStream());
-            System.out.println(response.charAt(0));
             JSONObject obj = new JSONObject(response);
             System.out.println(obj);
         }catch(Exception e){
         }
     }
     
+    private static JSONObject getMastersTasks(String MasterName) throws IOException{
+
+        try {
+            URL url = new URL("https://api.writeforme.org/api/v1/tasks");
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            http.setRequestProperty("authority", "api.writeforme.org");
+            http.setRequestProperty("accept", "application/json, text/plain, */*");
+            http.setRequestProperty("accept-language", "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7");
+            http.setRequestProperty("authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyNWI0MzUyNWJmOTJlMDAzNzVjOWY3ZCIsInVzZXJuYW1lIjoiRm9vdFNsYXZlTWVkbyIsImFkbWluIjpmYWxzZSwidmVyc2lvbiI6MSwiYmxvY2tlZFVzZXJzIjpbIjYyODMwNjYyNWJmOTJlMDAzNzZiNTQzOCIsIjYyMWZlODQ0ZWViYzQwNzYxN2Y2Y2M2NSJdLCJpYXQiOjE2NTQwODcxMTAsImV4cCI6MTY1NDE3MzUxMH0.__6b1hCDWLX4lGaRtve8ymIYO7rUKItQ4w6UD-1aZbs");
+            http.setRequestProperty("content-type", "application/json");
+            http.setRequestProperty("origin", "https://writeforme.org");
+            http.setRequestProperty("referer", "https://writeforme.org/");
+            http.setRequestProperty("sec-ch-ua", "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"101\", \"Opera\";v=\"87\"");
+            http.setRequestProperty("sec-ch-ua-mobile", "?0");
+            http.setRequestProperty("sec-ch-ua-platform", "\"Windows\"");
+            http.setRequestProperty("sec-fetch-dest", "empty");
+            http.setRequestProperty("sec-fetch-mode", "cors");
+            http.setRequestProperty("sec-fetch-site", "same-site");
+            http.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36 OPR/87.0.4390.36");
+            
+            String data = "{\"listType\":\"userTasks\",\"user\":\""+Masters.get(MasterName)+"\",\"query\":\"\",\"limit\":10000,\"skip\":0,\"sortBy\":\"created\",\"sortAsc\":false}";
+            byte[] out = data.getBytes(StandardCharsets.UTF_8);
+
+            OutputStream stream = http.getOutputStream();
+            stream.write(out);
+            
+            String response = getResponse(http.getInputStream());
+            JSONObject obj = new JSONObject(response);
+            
+            
+            http.disconnect();
+            
+            return obj;
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ProtocolException ex) {
+            Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+}
     
     private String getInformation(String mastername, String slavename){
     return "ok";
@@ -241,4 +335,48 @@ public class Bot extends ListenerAdapter {
         return "done";
     }
 
+       private static JSONObject getTaskDetails(String taskid){
+
+        try {
+            URL url = new URL("https://api.writeforme.org/api/v1/getSolutions");
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(true);
+            http.setRequestProperty("authority", "api.writeforme.org");
+            http.setRequestProperty("accept", "application/json, text/plain, */*");
+            http.setRequestProperty("accept-language", "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7");
+            http.setRequestProperty("authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyNWI0MzUyNWJmOTJlMDAzNzVjOWY3ZCIsInVzZXJuYW1lIjoiRm9vdFNsYXZlTWVkbyIsImFkbWluIjpmYWxzZSwidmVyc2lvbiI6MSwiYmxvY2tlZFVzZXJzIjpbIjYyODMwNjYyNWJmOTJlMDAzNzZiNTQzOCIsIjYyMWZlODQ0ZWViYzQwNzYxN2Y2Y2M2NSJdLCJpYXQiOjE2NTQwODcxMTAsImV4cCI6MTY1NDE3MzUxMH0.__6b1hCDWLX4lGaRtve8ymIYO7rUKItQ4w6UD-1aZbs");
+            http.setRequestProperty("content-type", "application/json");
+            http.setRequestProperty("origin", "https://writeforme.org");
+            http.setRequestProperty("referer", "https://writeforme.org/");
+            http.setRequestProperty("sec-ch-ua", "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"101\", \"Opera\";v=\"87\"");
+            http.setRequestProperty("sec-ch-ua-mobile", "?0");
+            http.setRequestProperty("sec-ch-ua-platform", "\"Windows\"");
+            http.setRequestProperty("sec-fetch-dest", "empty");
+            http.setRequestProperty("sec-fetch-mode", "cors");
+            http.setRequestProperty("sec-fetch-site", "same-site");
+            http.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36 OPR/87.0.4390.36");
+            
+            String data = "{\"listType\":\"taskSolutions\",\"task\":\""+taskid+"\",\"query\":\"\",\"limit\":5000,\"skip\":0,\"sortBy\":\"created\",\"sortAsc\":false}";
+            
+            byte[] out = data.getBytes(StandardCharsets.UTF_8);
+            
+            OutputStream stream = http.getOutputStream();
+            stream.write(out);
+            
+            String response = getResponse(http.getInputStream());
+            JSONObject obj = new JSONObject(response);
+            
+            http.disconnect();
+            
+            
+            return obj;
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Bot.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+}
+    
 }
