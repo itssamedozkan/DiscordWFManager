@@ -42,7 +42,7 @@ public class Bot extends ListenerAdapter {
 
     static HashMap<String, String> Masters = new HashMap();
 
-    public static void main(String[] args) throws LoginException {
+    public static void main(String[] args) throws LoginException, InterruptedException {
         // create a file object for the current location
         File file = new File("MastersList.txt");
 
@@ -89,7 +89,7 @@ public class Bot extends ListenerAdapter {
         JDABuilder.createLight("OTgxMjYzNzc2NTU0ODExNDAy.Gq9DBo.H42YC8rRw_DlmumDfdk5tqVUWfmpPfQIz3wVOM", GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES)
                 .addEventListeners(new Bot())
                 .setActivity(Activity.playing("Serving Master Mulv"))
-                .build();
+                .build().awaitReady();
     }
 
     @Override
